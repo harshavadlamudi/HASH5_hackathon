@@ -263,6 +263,29 @@
           }
         }
       }
+    },
+    "/search-patient-by-name": {
+      "get": {
+        "summary": "Search patient by name",
+        "description": "Find patients by first name, last name, or full name",
+        "operationId": "searchPatientByName",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Patient name to search for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching patients"
+          }
+        }
+      }
     }
   }
 }

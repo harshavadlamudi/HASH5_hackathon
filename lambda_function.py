@@ -247,6 +247,28 @@ def lambda_handler(event, context):
         
         result = {'summary': summary, 'total_resources': sum(summary.values()), 'note': 'Counts limited to 100 per resource type'}
     
+    elif api_path == '/search-patient-by-name':
+        search_name = params.get('name', '').lower()
+        data = search_healthlake('Patient', {'_count': '100'})
+        
+        matching_patients = []
+        for entry in data.get('entry', []):
+            p = entry['resource']
+            name = p.get('name', [{}])[0]
+            given = ' '.join(name.get('given', []))
+            family = name.get('family', '')
+            full_name = f"{given} {family}".lower()
+            
+            if search_name in full_name or search_name in given.lower() or search_name in family.lower():
+                matching_patients.append({
+                    'id': p.get('id'),
+                    'name': f"{given} {family}",
+                    'gender': p.get('gender'),
+                    'birthDate': p.get('birthDate')
+                })
+        
+        result = {'patients': matching_patients, 'count': len(matching_patients)}
+    
     return {
         'messageVersion': '1.0',
         'response': {
