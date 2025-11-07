@@ -251,6 +251,18 @@
           }
         }
       }
+    },
+    "/get-summary": {
+      "get": {
+        "summary": "Get database summary",
+        "description": "Get total counts of all resource types in HealthLake",
+        "operationId": "getSummary",
+        "responses": {
+          "200": {
+            "description": "Summary of all resources with counts"
+          }
+        }
+      }
     }
   }
 }

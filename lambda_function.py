@@ -47,9 +47,10 @@ def lambda_handler(event, context):
     result = {}
     
     if api_path == '/search-patients':
-        data = search_healthlake('Patient', {'_count': params.get('count', '10')})
+        count = params.get('count', '10')
+        data = search_healthlake('Patient', {'_count': count})
         patients = []
-        for entry in data.get('entry', [])[:10]:
+        for entry in data.get('entry', []):
             p = entry['resource']
             name = p.get('name', [{}])[0]
             patients.append({
@@ -58,7 +59,9 @@ def lambda_handler(event, context):
                 'gender': p.get('gender'),
                 'birthDate': p.get('birthDate')
             })
-        result = {'patients': patients}
+        # HealthLake total is often 0, so use actual count
+        total = data.get('total', 0) if data.get('total', 0) > 0 else len(patients)
+        result = {'patients': patients, 'total': total, 'returned': len(patients)}
     
     elif api_path == '/search-conditions':
         patient_id = params.get('patient_id')
@@ -75,7 +78,7 @@ def lambda_handler(event, context):
                 'condition': code.get('display', 'Unknown'),
                 'patient': c.get('subject', {}).get('reference', '')
             })
-        result = {'conditions': conditions}
+        result = {'conditions': conditions, 'total': data.get('total', 0)}
     
     elif api_path == '/search-observations':
         patient_id = params.get('patient_id')
@@ -93,7 +96,7 @@ def lambda_handler(event, context):
                 'observation': code.get('display', 'Unknown'),
                 'value': f"{value.get('value', '')} {value.get('unit', '')}" if value else 'N/A'
             })
-        result = {'observations': observations}
+        result = {'observations': observations, 'total': data.get('total', 0)}
     
     elif api_path == '/search-medications':
         patient_id = params.get('patient_id')
@@ -111,7 +114,7 @@ def lambda_handler(event, context):
                 'status': m.get('status', 'Unknown'),
                 'authoredOn': m.get('authoredOn', 'N/A')
             })
-        result = {'medications': medications}
+        result = {'medications': medications, 'total': data.get('total', 0)}
     
     elif api_path == '/search-encounters':
         patient_id = params.get('patient_id')
@@ -131,7 +134,7 @@ def lambda_handler(event, context):
                 'start': period.get('start', 'N/A'),
                 'end': period.get('end', 'N/A')
             })
-        result = {'encounters': encounters}
+        result = {'encounters': encounters, 'total': data.get('total', 0)}
     
     elif api_path == '/search-procedures':
         patient_id = params.get('patient_id')
@@ -150,7 +153,7 @@ def lambda_handler(event, context):
                 'status': p.get('status', 'Unknown'),
                 'performed': period.get('start', 'N/A')
             })
-        result = {'procedures': procedures}
+        result = {'procedures': procedures, 'total': data.get('total', 0)}
     
     elif api_path == '/search-allergies':
         patient_id = params.get('patient_id')
@@ -168,7 +171,7 @@ def lambda_handler(event, context):
                 'criticality': a.get('criticality', 'Unknown'),
                 'type': a.get('type', 'Unknown')
             })
-        result = {'allergies': allergies}
+        result = {'allergies': allergies, 'total': data.get('total', 0)}
     
     elif api_path == '/search-immunizations':
         patient_id = params.get('patient_id')
@@ -186,7 +189,7 @@ def lambda_handler(event, context):
                 'status': i.get('status', 'Unknown'),
                 'date': i.get('occurrenceDateTime', 'N/A')
             })
-        result = {'immunizations': immunizations}
+        result = {'immunizations': immunizations, 'total': data.get('total', 0)}
     
     elif api_path == '/search-diagnostic-reports':
         patient_id = params.get('patient_id')
@@ -204,7 +207,7 @@ def lambda_handler(event, context):
                 'status': r.get('status', 'Unknown'),
                 'issued': r.get('issued', 'N/A')
             })
-        result = {'reports': reports}
+        result = {'reports': reports, 'total': data.get('total', 0)}
     
     elif api_path == '/search-careplans':
         patient_id = params.get('patient_id')
@@ -223,7 +226,21 @@ def lambda_handler(event, context):
                 'status': cp.get('status', 'Unknown'),
                 'start': period.get('start', 'N/A')
             })
-        result = {'careplans': careplans}
+        result = {'careplans': careplans, 'total': data.get('total', 0)}
+    
+    elif api_path == '/get-summary':
+        # Get counts for all resource types
+        resource_types = ['Patient', 'Condition', 'Observation', 'MedicationRequest', 
+                         'Encounter', 'Procedure', 'AllergyIntolerance', 'Immunization',
+                         'DiagnosticReport', 'CarePlan']
+        
+        summary = {}
+        for resource_type in resource_types:
+            data = search_healthlake(resource_type, {'_count': '1000'})
+            count = len(data.get('entry', []))
+            summary[resource_type] = count
+        
+        result = {'summary': summary, 'total_resources': sum(summary.values())}
     
     return {
         'messageVersion': '1.0',
