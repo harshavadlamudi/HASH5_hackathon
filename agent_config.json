@@ -1,0 +1,27 @@
+{
+  "data_retrieval_agent": {
+    "agent_id": "HSSKM4JAUB",
+    "alias_id": "TSTALIASID",
+    "description": "Fetches FHIR data from HealthLake"
+  },
+  "cardiologist_agent": {
+    "agent_id": "CDMSLUEUFQ",
+    "alias_id": "TSTALIASID",
+    "description": "Analyzes cardiac data and provides cardiology reports"
+  },
+  "radiologist_agent": {
+    "agent_id": "K0MU8VCNSK",
+    "alias_id": "SKDFICIFI5",
+    "description": "Analyzes medical imaging and provides radiology reports"
+  },
+  "endocrinologist_agent": {
+    "agent_id": "0GRU0APJFO",
+    "alias_id": "KUSJRRPA9C",
+    "description": "Analyzes metabolic/endocrine data and provides endocrinology reports"
+  },
+  "orchestrator_agent": {
+    "agent_id": "C5XRILWF9L",
+    "alias_id": "ZFDKCDLVFN",
+    "description": "Coordinates all specialist agents and generates comprehensive reports"
+  }
+}
