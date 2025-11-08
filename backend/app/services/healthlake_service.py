@@ -9,7 +9,12 @@ class HealthLakeService:
         self.region = settings.AWS_REGION
         self.datastore_id = settings.HEALTHLAKE_DATASTORE_ID
         self.endpoint = f"https://healthlake.{self.region}.amazonaws.com/datastore/{self.datastore_id}/r4/"
-        self.session = boto3.Session(region_name=self.region)
+        self.session = boto3.Session(
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN,
+            region_name=self.region
+        )
     
     def search(self, resource_type: str, params: dict = None):
         """Search HealthLake FHIR resources"""
