@@ -11,6 +11,10 @@ from dotenv import load_dotenv
 import io
 import re
 from multi_agent_ui_functions import generate_comprehensive_report
+from report_cache_manager import cache_comprehensive_report, has_cached_reports, clear_cache
+from qa_query_processor import process_user_query, add_to_history
+from qa_ui_components import render_dynamic_response
+from qa_templates import get_quick_questions
 
 load_dotenv()
 
@@ -285,6 +289,12 @@ if 'comprehensive_report' not in st.session_state:
     st.session_state.comprehensive_report = None
 if 'generating_report' not in st.session_state:
     st.session_state.generating_report = False
+if 'qa_mode' not in st.session_state:
+    st.session_state.qa_mode = False
+if 'qa_history' not in st.session_state:
+    st.session_state.qa_history = []
+if 'cached_reports' not in st.session_state:
+    st.session_state.cached_reports = None
 
 # Header with mode toggle
 col1, col2 = st.columns([3, 1])
@@ -416,6 +426,7 @@ with st.sidebar:
                 st.session_state.patient_summary = None
                 st.session_state.comprehensive_report = None
                 st.session_state.generating_report = False
+                clear_cache(st.session_state)
                 st.rerun()
 
     st.divider()
@@ -562,6 +573,17 @@ with col1:
                         progress_callback=update_progress
                     )
                     st.session_state.comprehensive_report = report
+                    
+                    # Cache reports for Q&A
+                    cache_comprehensive_report(
+                        st.session_state,
+                        report['cardiology'],
+                        report['radiology'],
+                        report['endocrinology'],
+                        report['comprehensive'],
+                        summary
+                    )
+                    
                     st.session_state.generating_report = False
                     status_placeholder.success("✅ Report generated successfully!")
                     st.rerun()
@@ -591,6 +613,58 @@ with col1:
             with tabs[3]:
                 st.markdown("### Endocrinology Report")
                 st.markdown(report['endocrinology'])
+    
+    # Q&A Interface
+    if has_cached_reports(st.session_state):
+        st.divider()
+        
+        with st.expander("💬 Ask Questions About This Analysis", expanded=st.session_state.qa_mode):
+            st.markdown("Ask anything about the comprehensive medical analysis above.")
+            
+            # Quick questions
+            st.markdown("**Quick Questions:**")
+            quick_qs = get_quick_questions()
+            cols = st.columns(3)
+            for i, q in enumerate(quick_qs):
+                with cols[i % 3]:
+                    if st.button(q['label'], key=f"quick_{i}", use_container_width=True):
+                        st.session_state.qa_mode = True
+                        with st.spinner("Analyzing..."):
+                            response = process_user_query(q['question'], st.session_state)
+                            add_to_history(st.session_state, q['question'], response)
+                        st.rerun()
+            
+            st.divider()
+            
+            # Custom question input
+            user_question = st.text_input("Or ask your own question:", key="qa_input")
+            if st.button("Ask", key="qa_submit"):
+                if user_question:
+                    st.session_state.qa_mode = True
+                    with st.spinner("Analyzing..."):
+                        response = process_user_query(user_question, st.session_state)
+                        add_to_history(st.session_state, user_question, response)
+                    st.rerun()
+            
+            # Display Q&A history
+            if st.session_state.qa_history:
+                st.divider()
+                st.markdown("**Conversation History:**")
+                
+                for i, qa in enumerate(reversed(st.session_state.qa_history)):
+                    with st.container():
+                        st.markdown(f"**Q{len(st.session_state.qa_history)-i}:** {qa['question']}")
+                        
+                        # Render dynamic UI based on response type
+                        ui_type = qa['response'].get('ui_type', 'detailed_card')
+                        data = qa['response'].get('data', {})
+                        
+                        render_dynamic_response(ui_type, data)
+                        
+                        if qa['response'].get('sources'):
+                            st.caption(f"Sources: {', '.join(qa['response']['sources'])}")
+                        
+                        st.divider()
     
     st.subheader("Chat")
 

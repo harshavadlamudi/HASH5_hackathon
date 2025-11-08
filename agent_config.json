@@ -27,5 +27,9 @@
   "step_function": {
     "arn": "arn:aws:states:us-west-2:891450252216:stateMachine:MultiAgentMedicalAnalysis",
     "name": "MultiAgentMedicalAnalysis"
+  },
+  "qa_agent": {
+    "agent_id": "N8ZIMQYPVS",
+    "alias_id": "L9RIDQQAGN"
   }
 }
