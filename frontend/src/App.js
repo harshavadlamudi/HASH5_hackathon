@@ -12,11 +12,12 @@ function App() {
   const [activeView, setActiveView] = React.useState(0);
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#000000' }}>
       <AppBar position="sticky" elevation={2}>
         <Toolbar>
+          <Box component="img" src="/logo.jpg" alt="Healogue" sx={{ height: 60, mr: 2 }} />
           <Typography variant="h5" sx={{ fontWeight: 600, flexGrow: 1 }}>
-            🏥 HealthLake AI Assistant
+            Healogue
           </Typography>
           <Tabs 
             value={activeView} 
@@ -27,8 +28,8 @@ function App() {
             <Tab label="Dashboard" sx={{ color: 'white', textTransform: 'none' }} />
             <Tab label="Patients" sx={{ color: 'white', textTransform: 'none' }} />
           </Tabs>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-            Powered by AWS Bedrock
+          <Typography variant="body2" sx={{ color: '#FF6B35' }}>
+            AI-Powered Healthcare Assistant
           </Typography>
         </Toolbar>
       </AppBar>

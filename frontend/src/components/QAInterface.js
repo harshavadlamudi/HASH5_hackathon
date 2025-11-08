@@ -132,7 +132,7 @@ const QAInterface = ({ report, patientSummary }) => {
               </Box>
               <Divider sx={{ mb: 2 }} />
               {history.map((item, index) => (
-                <Paper key={index} sx={{ p: 2, mb: 2, bgcolor: index % 2 === 0 ? 'grey.50' : 'white', border: '1px solid', borderColor: 'grey.200' }}>
+                <Paper key={index} sx={{ p: 2, mb: 2, bgcolor: '#1A1A1A', border: '1px solid', borderColor: '#404040' }}>
                   <Typography variant="subtitle2" color="primary" fontWeight={600} gutterBottom>
                     Q{index + 1}: {item.question}
                   </Typography>

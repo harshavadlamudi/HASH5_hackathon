@@ -176,7 +176,7 @@ const ReportGenerator = ({ patientId, patientName, patientSummary }) => {
                 </Typography>
               )}
 
-              <Box sx={{ mt: 2, p: 2.5, bgcolor: 'grey.50', borderRadius: 1, maxHeight: 400, overflow: 'auto', border: '1px solid', borderColor: 'grey.200' }}>
+              <Box sx={{ mt: 2, p: 2.5, bgcolor: '#1A1A1A', borderRadius: 1, maxHeight: 400, overflow: 'auto', border: '1px solid', borderColor: '#404040' }}>
                 {activeTab === 0 && (
                   <Typography variant="body2" style={{ whiteSpace: 'pre-wrap' }}>
                     {report.comprehensive}
